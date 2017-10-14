@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:JAR.Client"
+        xmlns:jd="clr-namespace:Jdenticon.Wpf;assembly=Jdenticon.Wpf"
         mc:Ignorable="d"
         Title="MainWindow"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
@@ -17,9 +18,15 @@
         WindowStyle="None"
         ResizeMode="NoResize"
         SizeToContent="WidthAndHeight"
-        AllowsTransparency="True">
-    <Grid>
-        <Border CornerRadius="10"
+        AllowsTransparency="True"
+        WindowStartupLocation="CenterScreen"
+        Icon="jar-client.ico" Loaded="Window_Loaded">
+    <Window.Effect>
+        <DropShadowEffect ShadowDepth="1"
+                          BlurRadius="4" />
+    </Window.Effect>
+    <Grid Margin="4">
+        <Border CornerRadius="5"
                 Background="{DynamicResource MaterialDesignPaper}">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -28,19 +35,119 @@
                     <ColumnDefinition Width="250"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="220" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="240" />
                 </Grid.RowDefinitions>
+
+                <Border CornerRadius="5,5,0,0"
+                        Grid.ColumnSpan="3"
+                        Background="#bf360c">
+                    <Grid MouseDown="Grid_MouseDown">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="30" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Center"
+                                   Margin="20,0,20,0"
+                                   Foreground="#eceff1"
+                                   FontSize="18">JAR - Client</TextBlock>
+                        <Button x:Name="btnHide"
+                                Grid.Column="1"
+                                Content="●"
+                                Click="btnHide_Click"
+                                VerticalContentAlignment="Top"
+                                FontSize="30"
+                                Margin="6,-6,0,0">
+                            <Button.Template>
+                                <ControlTemplate TargetType="{x:Type Button}">
+                                    <ContentPresenter />
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </Grid>
+                </Border>
                 <materialDesign:Card Grid.Column="0"
-                                     Margin="16">
-                    <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}">My First Material Design App</TextBlock>
+                                     Grid.Row="1"
+                                     Background="#212121"
+                                     Height="220"
+                                     Width="220"
+                                     VerticalAlignment="Center">
+                    <Image Source="jarweb.png"
+                           Margin="10">
+                        <Image.Effect>
+                            <DropShadowEffect BlurRadius="3"
+                                              ShadowDepth="3" />
+                        </Image.Effect>
+                    </Image>
                 </materialDesign:Card>
                 <materialDesign:Card Grid.Column="1"
-                                     Margin="16">
-                    <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}">My First Material Design App</TextBlock>
+                                     Grid.Row="1"
+                                     Background="#303f9f"
+                                     Height="220"
+                                     Width="450"
+                                     VerticalAlignment="Center">
+                    <DockPanel VerticalAlignment="Stretch">
+                        <StackPanel DockPanel.Dock="Top">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Foreground="#eceff1"
+                                           Margin="10,10,0,5"
+                                           Style="{StaticResource MaterialDesignTitleTextBlock}"
+                                           FontSize="18">Connect to:</TextBlock>
+                                <TextBlock Foreground="#eceff1"
+                                           Margin="10,10,0,5"
+                                           Style="{StaticResource MaterialDesignTitleTextBlock}"
+                                           FontSize="18" x:Name="hostname">{0}</TextBlock>
+                            </StackPanel>
+                            <TextBlock TextWrapping="Wrap"
+                                       Margin="10,10,10,5"
+                                       Foreground="#eceff1"
+                                       VerticalAlignment="Top"
+                                       Style="{StaticResource MaterialDesignSubheadingTextBlock}"
+                                       FontSize="16"><Run Text="Allowing will let the above server retrieve your machine's performance metrics. Only allow connecting to trusted servers." /></TextBlock>
+                            <TextBlock TextWrapping="Wrap"
+                                       Margin="10,0,10,10"
+                                       Foreground="#eceff1"
+                                       VerticalAlignment="Top"
+                                       Style="{StaticResource MaterialDesignSubheadingTextBlock}"
+                                       FontSize="16">
+                    Ensure the pattern shown on right matches with the pattern shown on the site.</TextBlock>
+                        </StackPanel>
+                        <Border Grid.Row="1"
+                                Grid.ColumnSpan="2"
+                                BorderThickness="0 1 0 0"
+                                BorderBrush="{DynamicResource MaterialDesignDivider}"
+                                Padding="8"
+                                DockPanel.Dock="Bottom">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Button Style="{DynamicResource MaterialDesignFlatButton}"
+                                        Grid.Column="0"
+                                        x:Name="btnYes"
+                                        HorizontalAlignment="Right"
+                                        Foreground="White" Click="btnYes_Click">Yes
+                                </Button>
+                                <Button Style="{DynamicResource MaterialDesignFlatButton}"
+                                        Grid.Column="2"
+                                        x:Name="btnNo"
+                                        HorizontalAlignment="Left"
+                                        Foreground="White" Click="btnNo_Click">No
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </DockPanel>
                 </materialDesign:Card>
                 <materialDesign:Card Grid.Column="2"
-                                     Margin="16">
-                    <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}">My First Material Design App</TextBlock>
+                                     Grid.Row="1"
+                                     Background="#009688"
+                                     Height="220"
+                                     Width="220"
+                                     VerticalAlignment="Center">
+                    <jd:IdenticonElement Margin="5"
+                                         x:Name="identpic" Height="200" Width="200"></jd:IdenticonElement>
                 </materialDesign:Card>
             </Grid>
         </Border>
