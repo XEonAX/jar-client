@@ -19,6 +19,12 @@ namespace JAR.Client
         private Syncer _Syncer;
         private bool _ProtocolHandlerInstalled;
 
+        /// <summary>
+        /// This will be called for the first launch instance
+        /// In this will initialize the MainWindow, Syncer, WsClient and Ticker
+        /// We will also show the TrayIcon
+        /// </summary>
+        /// <param name="startupEventArgs"></param>
         protected override void OnStartup(StartupEventArgs startupEventArgs)
         {
             Console.WriteLine("App:Starting...");
@@ -29,7 +35,7 @@ namespace JAR.Client
             _Syncer = new Syncer(MainWindow as MainWindow);
 
 
-            Console.WriteLine("APP:CreateTray");
+            Console.WriteLine("APP:CreateTrayIcon");
             Forms.NotifyIcon trayIcon = new Forms.NotifyIcon();
             trayIcon.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Forms.Application.ExecutablePath);
             trayIcon.Visible = true;
@@ -61,14 +67,11 @@ namespace JAR.Client
             mniExit.Click += (_, __) => { Current.Shutdown(); };
             trayIcon.ContextMenuStrip.Items.Add(mniExit);
 
-
             _Syncer.ntfyIcon = trayIcon;
-
             try
             {
-                Console.WriteLine("APP:SetProtoHandler:" + Constants.Protocol);
-
                 Installer.RegisterThisApplication(Constants.Protocol, Constants.Title);
+                Console.WriteLine("APP:RegisterProtocolHandler:" + Constants.Protocol+ ":Success");
                 _ProtocolHandlerInstalled = true;
                 trayIcon.ShowBalloonTip(
                     tipTitle: Constants.Title,
@@ -80,6 +83,7 @@ namespace JAR.Client
             catch (Exception ex)
             {
                 _ProtocolHandlerInstalled = false;
+                Console.WriteLine("APP:RegisterProtocolHandler:" + Constants.Protocol + ":Failure");
                 trayIcon.ShowBalloonTip(
                      tipTitle: Constants.Title,
                      tipText: "Protocol Handler for '" + Constants.Protocol + "' could not be installed.",
@@ -88,15 +92,13 @@ namespace JAR.Client
                    );
             }
 
-            Console.WriteLine("APP:AttemptFirstClientInstanceClientSync:" + string.Join(",", startupEventArgs.Args));
-
+            Console.WriteLine("APP:FirstSync:" + string.Join(",", startupEventArgs.Args));
             _Syncer.Sync(startupEventArgs.Args);
         }
 
         internal void OnNextStartup(VB.StartupNextInstanceEventArgs nextInstanceEventArgs)
         {
-            Console.WriteLine("App:NextInstanceLaunched:" + string.Join(",", nextInstanceEventArgs.CommandLine));
-
+            Console.WriteLine("App:NextSync:" + string.Join(",", nextInstanceEventArgs.CommandLine));
             _Syncer.Sync(nextInstanceEventArgs.CommandLine.ToArray());
         }
     }

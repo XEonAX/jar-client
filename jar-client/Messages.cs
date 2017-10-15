@@ -33,4 +33,26 @@ namespace JAR.Client.Messages
             this.ctoken = ctoken;
         }
     }
+
+    public class TickMessage : ActionMessage
+    {
+        public float CPUTotal { get; set; }
+        public float MemoryUsed { get; set; }
+        //public float AverageCores { get; set; }
+        //public float[] Cores { get; set; }
+        public string[] ctokens { get; set; }
+
+        public TickMessage()
+        {
+            action = "performancetick";
+        }
+
+        public TickMessage(float CPUTotal, float MemoryUsed):this()//, float AverageCores, float[] Cores)
+        {
+            this.CPUTotal = CPUTotal;
+            this.MemoryUsed = MemoryUsed;
+            //this.AverageCores = AverageCores;
+            //this.Cores = Cores;
+        }
+    }
 }

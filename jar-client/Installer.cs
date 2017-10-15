@@ -44,7 +44,7 @@ namespace JAR.Client
 
         public static bool IsProtocolRegistered(string protocol)
         {
-            return (Registry.CurrentUser.OpenSubKey(protocol) != null);
+            return (Registry.CurrentUser.OpenSubKey("Software\\Classes\\" + protocol) != null);
         }
     }
 

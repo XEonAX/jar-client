@@ -7,6 +7,8 @@ namespace JAR.Client
 {
     internal class WsClient
     {
+        Dictionary<string, WebSocket> Connections = new Dictionary<string, WebSocket>();
+
         #region EventsArgs
         internal class WSHostArgs : EventArgs
         {
@@ -27,15 +29,18 @@ namespace JAR.Client
         }
 
         #endregion
-        #region Events
+
+        #region WsClientEvents
         internal event EventHandler<WSHostArgs> OnConnect;
         internal event EventHandler<WSHostArgs> OnDisconnect;
+        internal event EventHandler<WSTokenArgs> OnBrowserConnect;
         internal event EventHandler<WSTokenArgs> OnBrowserDisconnect;
         internal event EventHandler<WSTokenArgs> OnSubscribe;
         internal event EventHandler<WSTokenArgs> OnLogout;
         #endregion
 
-        Dictionary<string, WebSocket> Connections = new Dictionary<string, WebSocket>();
+        #region WsClient Methods
+
         internal void Connect(string url)
         {
             Console.WriteLine("WSCLIENT:Connect:" + url);
@@ -56,12 +61,19 @@ namespace JAR.Client
             }
         }
 
-        private void Ws_OnOpen(object sender, EventArgs e)
+        internal void Tick(Dictionary<string, List<string>> servers, TickMessage tickMsg)
         {
-            var ws = sender as WebSocket;
-            Console.WriteLine("WSCLIENT:Handlers:OnOpen:" + ws.Url);
-            Connections[ws.Url.ToString()] = ws;
-            OnConnect?.Invoke(this, new WSHostArgs(ws.Url.ToString()));
+            Console.WriteLine("WSCLIENT:Tick:servers.count:" +servers.Count );
+            foreach (var url in servers.Keys)
+            {
+                var ctokens = servers[url];
+                tickMsg.ctokens = ctokens.ToArray();
+                Connections[url].SendAsync(tickMsg.Serialize(), (sent) =>
+                {
+                    if (sent)
+                        Console.WriteLine("WSCLIENT:Tick:sent:" + sent);
+                });
+            }
         }
 
         internal void Subscribe(string url, string ctoken)
@@ -83,6 +95,18 @@ namespace JAR.Client
 
         }
 
+        #endregion
+
+        #region Websocket Event Handlers
+
+        private void Ws_OnOpen(object sender, EventArgs e)
+        {
+            var ws = sender as WebSocket;
+            Console.WriteLine("WSCLIENT:Handlers:OnOpen:" + ws.Url);
+            Connections[ws.Url.ToString()] = ws;
+            OnConnect?.Invoke(this, new WSHostArgs(ws.Url.ToString()));
+        }
+
         private void Ws_OnClose(object sender, CloseEventArgs e)
         {
             var ws = sender as WebSocket;
@@ -90,28 +114,35 @@ namespace JAR.Client
             Connections.Remove(ws.Url.ToString());
             OnDisconnect?.Invoke(this, new WSHostArgs(ws.Url.ToString()));
         }
+
         private void Ws_OnMessage(object sender, MessageEventArgs e)
         {
             var ws = sender as WebSocket;
-            Console.WriteLine("WSCLIENT:Handlers:OnMessage:" + ws.Url + ":" + e.Data);
+            Console.WriteLine("WSCLIENT:Handlers:Ws_OnMessage:" + ws.Url + ":" + e.Data);
 
-            var amsg = e.Data.DeSerialize<ActionMessage>();
-            Console.WriteLine("WSCLIENT:Handlers:OnMessage:amsg" + amsg);
+            var actionMsg = e.Data.DeSerialize<ActionMessage>();
+            Console.WriteLine("WSCLIENT:Handlers:Ws_OnMessage:actionMsg.action:" + actionMsg.action);
 
-            switch (amsg.action)
+            switch (actionMsg.action)
             {
                 case Actions.Notice:
-                    var nmsg = e.Data.DeSerialize<NoticeMessage>();
-                    switch (nmsg.notice)
+                    var noticeMsg = e.Data.DeSerialize<NoticeMessage>();
+                    Console.WriteLine("WSCLIENT:Handlers:Ws_OnMessage:noticeMsg.notice:" + noticeMsg.notice);
+                    Console.WriteLine("WSCLIENT:Handlers:Ws_OnMessage:noticeMsg.ctoken:" + noticeMsg.ctoken);
+
+                    switch (noticeMsg.notice)
                     {
                         case Notices.Subscribed:
-                            OnSubscribe?.Invoke(this, new WSTokenArgs(nmsg.ctoken));
+                            OnSubscribe?.Invoke(this, new WSTokenArgs(noticeMsg.ctoken));
+                            break;
+                        case Notices.BrowserConnected:
+                            OnBrowserConnect?.Invoke(this, new WSTokenArgs(noticeMsg.ctoken));
                             break;
                         case Notices.BrowserDisconnected:
-                            OnBrowserDisconnect?.Invoke(this, new WSTokenArgs(nmsg.ctoken));
+                            OnBrowserDisconnect?.Invoke(this, new WSTokenArgs(noticeMsg.ctoken));
                             break;
                         case Notices.Logout:
-                            OnLogout?.Invoke(this, new WSTokenArgs(nmsg.ctoken));
+                            OnLogout?.Invoke(this, new WSTokenArgs(noticeMsg.ctoken));
                             break;
                         default:
                             break;
@@ -124,19 +155,10 @@ namespace JAR.Client
 
         private void Ws_OnError(object sender, ErrorEventArgs e)
         {
-            Console.WriteLine("WSCLIENT:Handlers:OnError:" + e.Exception);
+            Console.WriteLine("WSCLIENT:Handlers:Ws_OnError:" + e.Message + ":Ex:" + e.Exception);
         }
 
-        private class Actions
-        {
-            internal const string Notice = "notice";
-        }
+        #endregion
 
-        private class Notices
-        {
-            internal const string Subscribed = "subscribed";
-            internal const string BrowserDisconnected = "browserdisconnected";
-            internal const string Logout = "logout";
-        }
     }
 }
