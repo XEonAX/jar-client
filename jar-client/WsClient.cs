@@ -1,6 +1,7 @@
 ﻿using JAR.Client.Messages;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using WebSocketSharp;
 
 namespace JAR.Client
@@ -53,6 +54,12 @@ namespace JAR.Client
             {
                 Console.WriteLine("WSCLIENT:Connect:New connection to create:" + url);
                 var ws = new WebSocket(url);
+                var proxy = WebRequest.DefaultWebProxy.GetProxy(new Uri(url.Replace("wss://","https://").Replace("ws://","http://")));
+                if (proxy.AbsoluteUri != string.Empty)
+                {
+                    Console.WriteLine("Proxy URL: " + proxy.AbsoluteUri);
+                    ws.SetProxy(proxy.AbsoluteUri, "", "");
+                }
                 ws.OnOpen += Ws_OnOpen;
                 ws.OnClose += Ws_OnClose;
                 ws.OnMessage += Ws_OnMessage;
