@@ -21,16 +21,11 @@ namespace JAR.Client
     /// </summary>
     public partial class MainWindow : Window
     {
-        private WindowDetails Details;
+        private WindowDetails Details = new WindowDetails { ident = "", hostname = "", wsHost = "" };
 
         public MainWindow()
         {
             InitializeComponent();
-            //System.Windows.Forms.NotifyIcon nIcon = new System.Windows.Forms.NotifyIcon();
-
-            //nIcon.Icon = System.Drawing.Icon.ExtractAssociatedIcon(System.Windows.Forms.Application.ExecutablePath);
-            //nIcon.Visible = true;
-            //nIcon.ShowBalloonTip(5000, "Title", "Text", System.Windows.Forms.ToolTipIcon.Info);
         }
 
         private void Grid_MouseDown(object sender, MouseButtonEventArgs e)

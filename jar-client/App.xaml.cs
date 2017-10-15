@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using VB = Microsoft.VisualBasic.ApplicationServices;
 using Forms = System.Windows.Forms;
+using System.Windows.Interop;
 
 namespace JAR.Client
 {
@@ -18,6 +19,7 @@ namespace JAR.Client
     {
         private Syncer _Syncer;
         private bool _ProtocolHandlerInstalled;
+        private ClipBoardMonitor clipboardMonitor;
 
         /// <summary>
         /// This will be called for the first launch instance
@@ -33,10 +35,11 @@ namespace JAR.Client
             Console.WriteLine("App:CreateMainWindow");
             MainWindow = new MainWindow();
             _Syncer = new Syncer(MainWindow as MainWindow);
-
+            //MainWindow.Show();
 
             Console.WriteLine("APP:CreateTrayIcon");
             Forms.NotifyIcon trayIcon = new Forms.NotifyIcon();
+
             trayIcon.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Forms.Application.ExecutablePath);
             trayIcon.Visible = true;
             trayIcon.Text = Constants.Title;
@@ -63,6 +66,23 @@ namespace JAR.Client
             };
             trayIcon.ContextMenuStrip.Items.Add(mniUninstall);
 
+            var mniClipboard = new Forms.ToolStripMenuItem("Monitor Clipboard");
+            mniClipboard.CheckOnClick = true;
+            mniClipboard.CheckedChanged += (sender, e) =>
+            {
+                if (clipboardMonitor == null)
+                {
+                    clipboardMonitor = new ClipBoardMonitor();
+                    clipboardMonitor.ClipboardChanged += ClipboardMonitor_ClipboardChanged;
+                }
+
+                if (mniClipboard.Checked)
+                    clipboardMonitor.Enable(MainWindow as MainWindow);
+                else
+                    clipboardMonitor.Disable();
+            };
+            trayIcon.ContextMenuStrip.Items.Add(mniClipboard);
+
             var mniExit = new Forms.ToolStripMenuItem("E&xit");
             mniExit.Click += (_, __) => { Current.Shutdown(); };
             trayIcon.ContextMenuStrip.Items.Add(mniExit);
@@ -71,7 +91,7 @@ namespace JAR.Client
             try
             {
                 Installer.RegisterThisApplication(Constants.Protocol, Constants.Title);
-                Console.WriteLine("APP:RegisterProtocolHandler:" + Constants.Protocol+ ":Success");
+                Console.WriteLine("APP:RegisterProtocolHandler:" + Constants.Protocol + ":Success");
                 _ProtocolHandlerInstalled = true;
                 trayIcon.ShowBalloonTip(
                     tipTitle: Constants.Title,
@@ -90,10 +110,46 @@ namespace JAR.Client
                      tipIcon: Forms.ToolTipIcon.Warning,
                      timeout: 100
                    );
+                mniClipboard.Checked = true;
             }
 
             Console.WriteLine("APP:FirstSync:" + string.Join(",", startupEventArgs.Args));
             _Syncer.Sync(startupEventArgs.Args);
+        }
+
+        private void ClipboardMonitor_ClipboardChanged(object sender, EventArgs e)
+        {
+            string clipdata;
+            try
+            {
+                if (Clipboard.ContainsText())
+                {
+                    clipdata = Clipboard.GetText(TextDataFormat.UnicodeText);
+                }
+                else
+                {
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("App:ClipChanged:Error:" + ex.ToString());
+                return;
+            }
+
+            if (clipdata.StartsWith(Constants.Protocol))
+            {
+                Console.WriteLine("App:ClipChanged:StartsWithProto:" + clipdata);
+                _Syncer.Sync(new[] { clipdata });
+                Clipboard.Clear();
+            }
+            else
+            {
+                var len = clipdata.Length;
+                clipdata = string.Empty;
+                if (len > 4096)
+                    GC.Collect();
+            }
         }
 
         internal void OnNextStartup(VB.StartupNextInstanceEventArgs nextInstanceEventArgs)
