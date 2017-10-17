@@ -33,7 +33,7 @@ namespace JAR.Client
         {
             tmrTicker = new Timer(1000);
             cpuCounter = new PerformanceCounter();
-            cpuCounter.CategoryName = "Processor";
+            cpuCounter.CategoryName = "Processor Information";
             cpuCounter.CounterName = "% Processor Time";
             cpuCounter.InstanceName = "_Total";
 

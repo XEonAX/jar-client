@@ -45,13 +45,13 @@
                     <Grid MouseDown="Grid_MouseDown">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />
-                            <ColumnDefinition Width="30" />
+                            <!--<ColumnDefinition Width="30" />-->
                         </Grid.ColumnDefinitions>
                         <TextBlock VerticalAlignment="Center"
                                    Margin="20,0,20,0"
                                    Foreground="#eceff1"
                                    FontSize="18">JAR - Client</TextBlock>
-                        <Button x:Name="btnHide"
+                        <!--<Button x:Name="btnHide"
                                 Grid.Column="1"
                                 Content="●"
                                 Click="btnHide_Click"
@@ -63,7 +63,7 @@
                                     <ContentPresenter />
                                 </ControlTemplate>
                             </Button.Template>
-                        </Button>
+                        </Button>-->
                     </Grid>
                 </Border>
                 <materialDesign:Card Grid.Column="0"

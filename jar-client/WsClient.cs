@@ -54,8 +54,9 @@ namespace JAR.Client
             {
                 Console.WriteLine("WSCLIENT:Connect:New connection to create:" + url);
                 var ws = new WebSocket(url);
-                var proxy = WebRequest.DefaultWebProxy.GetProxy(new Uri(url.Replace("wss://","https://").Replace("ws://","http://")));
-                if (proxy.AbsoluteUri != string.Empty)
+                var httpurl = new Uri(url.Replace("wss://", "https://").Replace("ws://", "http://"));
+                var proxy = WebRequest.DefaultWebProxy.GetProxy(httpurl);
+                if (proxy.AbsoluteUri != string.Empty && proxy.AbsoluteUri!=httpurl.AbsoluteUri)
                 {
                     Console.WriteLine("Proxy URL: " + proxy.AbsoluteUri);
                     ws.SetProxy(proxy.AbsoluteUri, "", "");

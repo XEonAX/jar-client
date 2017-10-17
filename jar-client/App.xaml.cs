@@ -84,7 +84,7 @@ namespace JAR.Client
             trayIcon.ContextMenuStrip.Items.Add(mniClipboard);
 
             var mniExit = new Forms.ToolStripMenuItem("E&xit");
-            mniExit.Click += (_, __) => { Current.Shutdown(); };
+            mniExit.Click += (_, __) => { trayIcon.Visible = false; Current.Shutdown(); };
             trayIcon.ContextMenuStrip.Items.Add(mniExit);
 
             _Syncer.ntfyIcon = trayIcon;
