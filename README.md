@@ -21,3 +21,7 @@ For e.g. This application sends Performance metrics of your machine when connect
  4. Build.
  5. Press `F5` to debug.
  6. Enjoy!!!
+ 
+## Screenshots
+ -  Connection Confirmation Dialog
+![jar-client](https://user-images.githubusercontent.com/15712061/32700406-b295a7d8-c7ea-11e7-9e12-483d0c3240db.png)
