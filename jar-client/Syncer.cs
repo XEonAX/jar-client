@@ -211,7 +211,7 @@ namespace JAR.Client
                     mainWindow.Show(new WindowDetails
                     {
                         hostname = wsurl.Host,
-                        ident = wsurl.ToString(),
+                        ident = wsurl.ToString() + Constants.PreSharedSecret,
                         wsHost = wsHostUrl,
                         wsToken = wsToken
                     });

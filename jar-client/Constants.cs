@@ -18,6 +18,11 @@ namespace JAR.Client
         /// Protocol to use for Protocol Handler
         /// </summary>
         internal const string Protocol = "jarclient";
+
+        /// <summary>
+        /// Pre-Shared secret to create Identicon
+        /// </summary>
+        internal const string PreSharedSecret = "🔒🔑";
     }
 
     /// <summary>
